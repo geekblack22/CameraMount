@@ -1,0 +1,14 @@
+bool primaryButton
+bool secondaryButton
+bool triggerButton
+bool gripButton
+bool joystickButton
+float32 joystick_pos_x
+float32 joystick_pos_y
+float32 controller_pos_x
+float32 controller_pos_y
+float32 controller_pos_z
+float32 controller_rot_x
+float32 controller_rot_y
+float32 controller_rot_z
+float32 controller_rot_w

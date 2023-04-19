@@ -1,0 +1,8 @@
+Joint 1
+	Center = -60
+	Max 90 degrees = 320
+	Min -90 degrees = [-60 -194] [1193 1071]
+Joint 2
+	center = -128
+	Max 90 degrees = 244
+	min 90 degrees = [-128 -194] [1193 1013]
