@@ -2,11 +2,6 @@ import sys, time
 import serial
 import lewansoul_lx16a
 from pynput import keyboard
-# try:
-#     import keyboard
-# except:
-#     print("not Root")
-
 from numpy import interp
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,21 +11,28 @@ class CameraMount:
             serial.Serial(SERIAL_PORT, 115200, timeout=1),
         )
         self.SERIAL_PORT = SERIAL_PORT
-        self.thresh = 3
+        self.thresh = 10
+        self.stop = False
 
-    def set_pos(self,desired_pos,velocity=[150,150]):
-        # desired_pos = self.to_val(desired_pos)
+    def set_pos(self,desired_pos,velocity=[100,150]):
+        """
+        This function sends the motor mount to a desired position
+
+        parameters: 
+                    desired_pos: The desired position for the camera mount
+                    velocity: The velocity of both motors
+
+        """ 
+
         velocity = self.pos_vel(desired_pos,velocity)
         self.set_vel(1,velocity[0])
         self.set_vel(2,velocity[1])
        
-        while not self.pos_reached(desired_pos): 
+        while not self.pos_reached(desired_pos) and not self.stop: 
             error = self.get_error(desired_pos)
             curr_pos = self.get_pos()
             
-            # if curr_pos[0] < 0 or curr_pos[1] < -189:
-
-            #     break
+          
             if abs(error[0]) < self.thresh:
                  self.set_vel(1,0)
             if abs(error[1]) < self.thresh:
@@ -48,8 +50,24 @@ class CameraMount:
         
     
     def set_vel(self,id,velocity):
+        """
+        This function sets a motor to a desired velocity 
+
+        parameters: 
+                    id: the motor id
+                    velocity: The desired velocity velocity 
+
+        """ 
         self.__ctrl.set_motor_mode(id,velocity)
     def get_error(self,desired_pos):
+        """
+        This function sets a motor to a desired velocity 
+
+        parameters: 
+                    desired_pos: the desired position 
+                    
+
+        """ 
         curr_pos = self.to_angle(self.get_pos())
         return [desired_pos[0] - curr_pos[0],desired_pos[1] - curr_pos[1]]
     def fix_val(self,val):
@@ -75,6 +93,13 @@ class CameraMount:
     def get_value(self,angle):
         return int(interp(angle,[0,240],[0,1000]))
     def to_angle(self,pos):
+        """
+        This function takes postion values and turns them into angle values
+
+        parameters: 
+                    pos: position values
+                   
+        """ 
         angle = [0] * 2
         pos = self.fix_val(pos)
         if pos[0] <= -60:
@@ -88,6 +113,11 @@ class CameraMount:
         
         return angle
     def to_val(self,angle):
+        """
+        This function takes angle values and turns them into position values
+        parameters: 
+                    angle: angle values   
+        """ 
         pos = [0] * 2
         if angle[0] < 0:
            angle[0] = interp(angle[0],[-90,0],[-316,-60])
@@ -100,15 +130,30 @@ class CameraMount:
         return self.break_val(pos)
 
 
-        return [self.get_value(pos[0]), self.get_value(pos[1])]
+        # return [self.get_value(pos[0]), self.get_value(pos[1])]
     
     def pos_reached(self,desired_pos):
+        """
+        This function takes a desired postion and checks if the current position is close enough to said desired position
+
+        parameters: 
+                    desired_pos: the desired position
+                   
+        """ 
         error = self.get_error(desired_pos)
         pos_reached = abs(error[0]) <= self.thresh and abs(error[1]) <= self.thresh
         return pos_reached
 
 
     def pos_vel(self,desired_pos,vel):
+        """
+        This function takes a desired postion and checks the error to determine the derection of the servo velocities
+
+        parameters: 
+                    desired_pos: the desired position
+                    vel: the velocities of the servos
+                   
+        """ 
         error = self.get_error(desired_pos)
         vel = [abs(x) for x in vel]
        
@@ -125,6 +170,13 @@ class CameraMount:
         return vel
         
     def on_press(self,key):
+        """
+        This function takes a key value and sets the velocity of the corrosponding servo 
+
+        parameters: 
+                    key: the keyboard input
+                   
+        """ 
         speed = 200
         try:
             k = key.char  # single-char keys
@@ -152,6 +204,13 @@ class CameraMount:
     
 
     def on_release(self,key):
+        """
+        This function takes a key value and sets the velocity of the corrosponding servo to zero
+
+        parameters: 
+                    key: the key that was released 
+                   
+        """ 
         try:
             k = key.char  # single-char keys
         except:
@@ -174,6 +233,9 @@ class CameraMount:
             # Stop listener
             return False
     def keyboard_control(self):
+        """
+        This function allows the user to control the servo via key board commands      
+        """ 
        
         listener = keyboard.Listener(
         on_press=self.on_press,on_release=self.on_release)
@@ -185,10 +247,19 @@ class CameraMount:
             
 
     def get_pos(self):
+        """
+        This function gets the position of the servo      
+        """ 
         pos_1 = self.__ctrl.get_position(1)
         pos_2 = self.__ctrl.get_position(2)
         return [pos_1,pos_2]
     def diagnostic(self,save=False):
+        """
+        This function allows one to plot the position of the servos and test their mapping  
+
+          parameters: 
+                    save: if true save the data collected else do not save    
+        """ 
         user_input = input("Enter desired position: ")
         pos_1_p1 = []
         pos_2_p1 = []
@@ -218,11 +289,7 @@ class CameraMount:
                
                 
 
-            # if keyboard.is_pressed("x"):
-            #     break
-            # if keyboard.is_pressed("t"):
-            #     user_input = input("Enter desired position: ")
-            #     user_input = user_input.replace('t','')
+            
         if save:
             np.save("./Poses/pos_1_p1",pos_1_p1)
             np.save("./Poses/pos_2_p1",pos_2_p1)
@@ -233,22 +300,7 @@ class CameraMount:
 
 
         
-# if __name__ == '__main__':
-#     mount = CameraMount()
-#     mount.diagnostic()
-#     # pos_1_p1 = np.load("Poses/pos_1_p1.npy")
-#     # pos_2_p1 = np.load("Poses/pos_2_p1.npy")
-#     # pos_1_p2 = np.load("Poses/pos_1_p2.npy")
-#     # pos_2_p2 = np.load("Poses/pos_2_p2.npy")
-#     # plt.figure()
-#     # plt.plot(pos_1_p1)
-#     # plt.figure()
-#     # plt.plot(pos_2_p1)
-#     # plt.figure()
-#     # plt.plot(pos_1_p2)
-#     # plt.figure()
-#     # plt.plot(pos_2_p2)
-#     # plt.show()
+
         
        
 
