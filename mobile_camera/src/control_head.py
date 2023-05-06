@@ -77,6 +77,7 @@ class oculusControl:
     angles = [self.zeroed_pos[1], self.zeroed_pos[2] *-1]
   
     angles = self.check_val(angles)
+ 
 
     
     

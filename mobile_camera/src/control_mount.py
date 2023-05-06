@@ -14,7 +14,7 @@ class CameraMount:
         self.thresh = 10
         self.stop = False
 
-    def set_pos(self,desired_pos,velocity=[100,150]):
+    def set_pos(self,desired_pos,velocity=[120,150]):
         """
         This function sends the motor mount to a desired position
 
@@ -23,29 +23,41 @@ class CameraMount:
                     velocity: The velocity of both motors
 
         """ 
-
-        velocity = self.pos_vel(desired_pos,velocity)
-        self.set_vel(1,velocity[0])
-        self.set_vel(2,velocity[1])
-       
-        while not self.pos_reached(desired_pos) and not self.stop: 
-            error = self.get_error(desired_pos)
-            curr_pos = self.get_pos()
+        init_error = self.get_error(desired_pos)
+        if abs(init_error[0]) >= .5 and  abs(init_error[1]) >= .5:
+            velocity = self.pos_vel(desired_pos,velocity)
+            self.set_vel(1,velocity[0])
+            self.set_vel(2,velocity[1])
+            prev_pos = self.get_pos()
+            stall_count = 0
             
-          
-            if abs(error[0]) < self.thresh:
-                 self.set_vel(1,0)
-            if abs(error[1]) < self.thresh:
-                self.set_vel(2,0)
-            print("Moving towars desired position: "+str(desired_pos))
-            print("Current Pos: " + str(self.to_angle(self.get_pos())))
-
-            print("Current Vel: " + str(velocity))
-            print("Error: "+str(error))
+        
+                
+            while not self.pos_reached(desired_pos) and not self.stop: 
+                error = self.get_error(desired_pos)
+                curr_pos = self.get_pos()
+                distance = [curr_pos[0]-prev_pos[0],curr_pos[1]-prev_pos[1]]
+                
+                if abs(distance[0]) <= 1 and abs(distance[1]) <=1:
+                    stall_count += 1
+                
+                if stall_count >= 5:
+                    
+                    stall_count = 0
+                    print("motor stalled")
+                    break
+                
+            
+                if abs(error[0]) < self.thresh:
+                    self.set_vel(1,0)
+                if abs(error[1]) < self.thresh:
+                    self.set_vel(2,0)
+            
+                prev_pos = curr_pos
         self.set_vel(1,0)
         self.set_vel(2,0)
            
-        print("Pos Reached")
+        # print("Pos Reached")
        
         
     
@@ -158,13 +170,13 @@ class CameraMount:
         vel = [abs(x) for x in vel]
        
         if error[0] < 0:
-            print("Velocity 1 Before: " + str(vel[0]))
+           
             vel[0] *= -1 
-            print("Velocity 1 After: " + str(vel[0]))
+           
         if error[1] < 0:
-            print("Velocity  2 Before: " + str(vel[1]))
+            
             vel[1] *= -1 
-            print("Velocity  2 After: " + str(vel[1]))
+            
        
 
         return vel
