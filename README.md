@@ -4,7 +4,7 @@ The camera mount has 2 DoF and can be controlled using serial communication. The
 ## Running the camera mount
 ### ROS
 #### ROS Unity TCP
-'roslaunch ros_tcp_endpoint endpoint.launch'
+```roslaunch ros_tcp_endpoint endpoint.launch```
 #### Oculus Control
 'rosrun mobile_camera control_head.py'
 #### Camera Feed
