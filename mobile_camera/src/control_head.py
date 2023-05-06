@@ -83,7 +83,7 @@ class oculusControl:
     
     
     if self.move_servos:
-        self.stop = False
+        
         self.ang_list.append(angles)
         
         if len(self.ang_list) == 5:
@@ -92,7 +92,7 @@ class oculusControl:
           self.ang_list = []
       
     else:
-        self.stop = True
+       
         self.camera.set_vel(1,0)
         self.camera.set_vel(2,0)
         

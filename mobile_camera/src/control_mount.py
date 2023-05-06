@@ -33,7 +33,7 @@ class CameraMount:
             
         
                 
-            while not self.pos_reached(desired_pos) and not self.stop: 
+            while not self.pos_reached(desired_pos): 
                 error = self.get_error(desired_pos)
                 curr_pos = self.get_pos()
                 distance = [curr_pos[0]-prev_pos[0],curr_pos[1]-prev_pos[1]]
