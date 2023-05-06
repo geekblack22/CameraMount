@@ -6,14 +6,14 @@ The camera mount has 2 DoF and can be controlled using serial communication. The
 #### ROS Unity TCP
 ```roslaunch ros_tcp_endpoint endpoint.launch```
 #### Oculus Control
-'rosrun mobile_camera control_head.py'
+```rosrun mobile_camera control_head.py```
 #### Camera Feed
-'roslaunch realsense_gopher real_gopher.launch  segment:=false'
+```roslaunch realsense_gopher real_gopher.launch  segment:=false```
 #### Keyboard Controll
-call the keyboard_control function of the CameraMount Class in the control_mount.py file
+call the keyboard_control function of the CameraMount Class in the control_mount.py file.
 
 ### Unity
-Run the Input Control - servo unity project
+Run the 'Input Control - servo' unity project
 
 
 
