@@ -12,7 +12,7 @@ class CameraMount:
         )
         self.SERIAL_PORT = SERIAL_PORT
         self.thresh = 10
-        self.stop = False
+      
 
     def set_pos(self,desired_pos,velocity=[120,150]):
         """
